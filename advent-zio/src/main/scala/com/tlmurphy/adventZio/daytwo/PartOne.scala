@@ -43,7 +43,6 @@ case class Round(opponent: Hand, me: Hand) {
 }
 
 object PartOne extends ZIOAppDefault:
-
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
     val stream = FileReader.getStream("day2.txt")
     for
@@ -57,5 +56,3 @@ object PartOne extends ZIOAppDefault:
       )
       _ <- printLine(scores.sum)
     yield ()
-
-    // 13221
