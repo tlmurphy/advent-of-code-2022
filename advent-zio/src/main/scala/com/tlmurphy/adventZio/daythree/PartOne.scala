@@ -4,7 +4,7 @@ import zio.*
 import zio.Console.*
 import com.tlmurphy.adventZio.FileReader
 import zio.stream.ZStream
-import scala.io.Source
+import zio.stream.ZSink
 
 object PartOne extends ZIOAppDefault:
 
@@ -17,10 +17,9 @@ object PartOne extends ZIOAppDefault:
     def prioVal(c: Char): Int = priorites(c)
 
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
-    val stream = FileReader.getStream("day3.txt")
-    for
-      chunks <- stream.runCollect
-      sacks <- ZIO.succeed(chunks.map(Sack(_)))
-      prioVals <- ZIO.succeed(sacks.map(s => s.prioVal(s.commonItem)))
-      _ <- printLine(prioVals.sum)
-    yield ()
+    FileReader
+      .getStream("day3.txt")
+      .map(Sack(_))
+      .map(s => s.prioVal(s.commonItem))
+      .runSum
+      .flatMap(printLine(_))

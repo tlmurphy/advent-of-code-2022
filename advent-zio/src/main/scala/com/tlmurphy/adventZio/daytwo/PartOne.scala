@@ -39,11 +39,8 @@ object PartOne extends ZIOAppDefault:
         case 'Z' => 3 + myScore
 
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
-    val stream = FileReader.getStream("day2.txt")
-    for
-      chunks <- stream.runCollect
-      scores <- ZIO.succeed(
-        chunks.map(x => Round(Hand(x.head), Hand(x.last)).score)
-      )
-      _ <- printLine(scores.sum)
-    yield ()
+    FileReader
+      .getStream("day2.txt")
+      .map(s => Round(Hand(s.head), Hand(s.last)).score)
+      .runSum
+      .flatMap(printLine(_))

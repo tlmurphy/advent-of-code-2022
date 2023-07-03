@@ -14,11 +14,13 @@ object PartTwo extends IOApp.Simple:
     chunk.sumAll
 
   override def run: IO[Unit] =
-    val stream = FileReader.getStream("day1.txt").split(_ == "")
-    for
-      chunks <- stream.compile.toList
-      intChunks <- IO(chunks.map(toIntChunk))
-      sums <- IO(intChunks.map(computeSums))
-      sortedSums <- IO(sums.sorted(Ordering[Int].reverse))
-      topThree <- IO(sortedSums.take(3))
-    yield println(topThree.sum)
+    FileReader
+      .getStream("day1.txt")
+      .split(_ == "")
+      .map(toIntChunk)
+      .map(computeSums)
+      .compile
+      .toList
+      .map(_.sorted(Ordering[Int].reverse))
+      .map(_.take(3))
+      .flatMap(topThree => IO(println(topThree.sum)))

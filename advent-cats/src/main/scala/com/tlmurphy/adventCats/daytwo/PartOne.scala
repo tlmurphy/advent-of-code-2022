@@ -36,7 +36,6 @@ object PartOne extends IOApp.Simple:
         case 'Z' => 3 + myScore
 
   override def run: IO[Unit] =
-    IO(println("HELLO"))
     FileReader
       .getStream("day2.txt")
       .takeWhile(_ != "")

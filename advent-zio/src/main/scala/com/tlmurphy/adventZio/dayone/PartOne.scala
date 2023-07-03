@@ -11,11 +11,10 @@ object PartOne extends ZIOAppDefault:
     chunks.map(_.toInt)
 
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
-    val stream = FileReader.getStream("day1.txt").split(_ == "")
-    for
-      chunks <- stream.runCollect
-      intChunks <- ZIO.succeed(chunks.map(toIntChunks))
-      sums <- ZIO.succeed(intChunks.map(_.sum))
-      max <- ZIO.succeed(sums.max)
-      _ <- printLine(max)
-    yield ()
+    FileReader
+      .getStream("day1.txt")
+      .split(_ == "")
+      .map(toIntChunks)
+      .map(_.sum)
+      .runCollect
+      .flatMap(c => printLine(c.max))

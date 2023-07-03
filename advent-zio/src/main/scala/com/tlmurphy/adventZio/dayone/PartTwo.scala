@@ -11,12 +11,12 @@ object PartTwo extends ZIOAppDefault:
     chunks.map(_.toInt)
 
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
-    val stream = FileReader.getStream("day1.txt").split(_ == "")
-    for
-      chunks <- stream.runCollect
-      intChunks <- ZIO.succeed(chunks.map(toIntChunks))
-      sums <- ZIO.succeed(intChunks.map(_.sum))
-      topThree <- ZIO.succeed(sums.sorted(Ordering[Int].reverse).take(3))
-      sumOfTopThree <- ZIO.succeed(topThree.sum)
-      _ <- printLine(sumOfTopThree)
-    yield ()
+    FileReader
+      .getStream("day1.txt")
+      .split(_ == "")
+      .map(toIntChunks)
+      .map(_.sum)
+      .runCollect
+      .map(_.sorted(Ordering[Int].reverse).take(3))
+      .map(_.sum)
+      .flatMap(printLine(_))
