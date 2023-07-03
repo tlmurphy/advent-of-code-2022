@@ -8,9 +8,8 @@ import fs2.io.file.{Files, Path}
 object FileReader:
   def getStream(
       fileName: String
-  ): Stream[IO, Chunk[String]] =
+  ): Stream[cats.effect.IO, String] =
     Files[IO]
       .readAll(Path(fileName))
       .through(text.utf8Decode)
       .through(text.lines)
-      .split(_ == "")

@@ -7,11 +7,11 @@ import com.tlmurphy.adventZio.FileReader
 
 object PartOne extends ZIOAppDefault:
 
-  def toIntChunks(chunks: Chunk[String]): Chunk[Int] =
+  private def toIntChunks(chunks: Chunk[String]): Chunk[Int] =
     chunks.map(_.toInt)
 
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
-    val stream = FileReader.getStream("day1.txt")
+    val stream = FileReader.getStream("day1.txt").split(_ == "")
     for
       chunks <- stream.runCollect
       intChunks <- ZIO.succeed(chunks.map(toIntChunks))

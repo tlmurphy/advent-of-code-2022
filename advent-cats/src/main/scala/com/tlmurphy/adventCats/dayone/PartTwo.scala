@@ -14,7 +14,7 @@ object PartTwo extends IOApp.Simple:
     chunk.sumAll
 
   override def run: IO[Unit] =
-    val stream = FileReader.getStream("day1.txt")
+    val stream = FileReader.getStream("day1.txt").split(_ == "")
     for
       chunks <- stream.compile.toList
       intChunks <- IO(chunks.map(toIntChunk))

@@ -5,7 +5,7 @@ import zio.stream.*
 import scala.io.Source
 
 object FileReader:
-  def getStream(fileName: String): ZStream[Any, Throwable, Chunk[String]] =
+  def getStream(fileName: String): ZStream[Any, Throwable, String] =
     ZStream
       .fromIteratorScoped(
         ZIO
@@ -14,4 +14,3 @@ object FileReader:
           )
           .map(_.getLines())
       )
-      .split(_ == "")

@@ -9,6 +9,7 @@ object PartOne extends IOApp.Simple:
   override def run: IO[Unit] =
     FileReader
       .getStream("day1.txt")
+      .split(_ == "")
       .map(_.map(_.toInt))
       .map(_.sumAll)
       .reduce(_ max _)
