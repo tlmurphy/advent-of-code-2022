@@ -39,9 +39,10 @@ object PartOne extends IOApp.Simple:
     IO(println("HELLO"))
     FileReader
       .getStream("day2.txt")
+      .takeWhile(_ != "")
       .map(s => Round(Hand(s.head), Hand(s.last)))
       .map(_.score)
       .reduce(_ + _)
-      .evalMap(x => IO(println(x)))
+      .evalMap(scoreSum => IO(println(scoreSum)))
       .compile
       .drain

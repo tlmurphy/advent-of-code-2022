@@ -30,9 +30,10 @@ object PartTwo extends IOApp.Simple:
   override def run: IO[Unit] =
     FileReader
       .getStream("day2.txt")
+      .takeWhile(_ != "")
       .map(s => Round(s.head, s.last))
       .map(_.score)
       .reduce(_ + _)
-      .evalMap(x => IO(println(x)))
+      .evalMap(scoreSum => IO(println(scoreSum)))
       .compile
       .drain
