@@ -38,18 +38,21 @@ object PartOne extends ZIOAppDefault:
       .split(_ == "")
     val crateStream = stream
       .take(1)
-      .map(s => s.map(x => parseCrateInput(x, List.empty)))
+      .map(_.map(x => parseCrateInput(x, List.empty)))
       .map(_.dropRight(1).transpose)
-      .map(c => c.map(_.flatten.toList))
+      .mapChunks(_.flatten)
+      .map(_.flatten.toList)
+
     val operationStream = stream
       .drop(1)
-      .map(_.map(parseOperation))
+      .mapChunks(_.flatten)
+      .map(parseOperation)
 
     for {
       _ <- stream.runDrain
       crates <- crateStream.runCollect
       operations <- operationStream.runCollect
-      crateArray <- ZIO.succeed(crates.flatten.toArray)
-      _ <- ZIO.succeed(operations.flatten.foreach(_.execute(crateArray)))
+      crateArray <- ZIO.succeed(crates.toArray)
+      _ <- ZIO.succeed(operations.foreach(_.execute(crateArray)))
       _ <- printLine(topOfStacks(crateArray))
     } yield ()
