@@ -1,4 +1,4 @@
-package com.tlmurphy.adventCats.daytwo
+package com.tlmurphy.adventCats.day2
 
 import cats.effect.{IO, IOApp}
 import cats.syntax.all.*

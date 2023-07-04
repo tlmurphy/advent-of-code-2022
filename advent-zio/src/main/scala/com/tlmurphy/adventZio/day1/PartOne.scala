@@ -1,4 +1,4 @@
-package com.tlmurphy.adventZio.dayone
+package com.tlmurphy.adventZio.day1
 
 import zio.*
 import zio.Console.*

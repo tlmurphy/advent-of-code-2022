@@ -1,11 +1,10 @@
-package com.tlmurphy.adventZio.daytwo
+package com.tlmurphy.adventCats.day2
 
-import zio.*
-import zio.Console.*
-import zio.stream.*
-import com.tlmurphy.adventZio.FileReader
+import cats.effect.{IO, IOApp}
+import cats.syntax.all.*
+import com.tlmurphy.adventCats.FileReader
 
-object PartTwo extends ZIOAppDefault:
+object PartTwo extends IOApp.Simple:
 
   private case class Round(opponent: Char, me: Char):
     private val loss: Int = opponent match
@@ -28,9 +27,13 @@ object PartTwo extends ZIOAppDefault:
       case 'Y' => 3 + tie
       case 'Z' => 6 + win
 
-  override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
+  override def run: IO[Unit] =
     FileReader
       .getStream("day2.txt")
-      .map(s => Round(s.head, s.last).score)
-      .runSum
-      .flatMap(printLine(_))
+      .takeWhile(_ != "")
+      .map(s => Round(s.head, s.last))
+      .map(_.score)
+      .reduce(_ + _)
+      .evalMap(scoreSum => IO(println(scoreSum)))
+      .compile
+      .drain
