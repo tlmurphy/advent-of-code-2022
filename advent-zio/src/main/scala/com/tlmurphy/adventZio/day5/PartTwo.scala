@@ -1,17 +1,16 @@
-package com.tlmurphy.adventCats.day5
+package com.tlmurphy.adventZio.day5
 
-import cats.effect.IOApp
-import cats.effect.IO
-import cats.syntax.*
+import zio.*
+import zio.Console.*
+import com.tlmurphy.adventZio.FileReader
 import scala.annotation.tailrec
-import com.tlmurphy.adventCats.FileReader
 
-object PartOne extends IOApp.Simple:
+object PartTwo extends ZIOAppDefault:
 
   case class Operation(amount: Int, from: Int, to: Int):
     def execute(crates: Array[List[String]]): Unit =
       val items = crates(from - 1).take(amount)
-      val newTo = items.reverse ::: crates(to - 1)
+      val newTo = items ::: crates(to - 1)
       crates(from - 1) = crates(from - 1).drop(amount)
       crates(to - 1) = newTo
 
@@ -33,24 +32,28 @@ object PartOne extends IOApp.Simple:
   def topOfStacks(crates: Array[List[String]]): String =
     crates.map(_.head).mkString
 
-  override def run: IO[Unit] =
+  override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
     val stream = FileReader
       .getStream("day5.txt")
       .split(_ == "")
 
     val crateStream = stream
       .take(1)
-      .map(_.map(s => parseCrateInput(s, List.empty)))
-      .map(_.dropRight(1).toList.transpose)
-      .map(_.map(_.flatten))
+      .map(_.map(x => parseCrateInput(x, List.empty)))
+      .map(_.dropRight(1).transpose)
+      .mapChunks(_.flatten)
+      .map(_.flatten.toList)
 
-    val operationStream = stream.drop(1).map(c => c.map(parseOperation).toList)
+    val operationStream = stream
+      .drop(1)
+      .mapChunks(_.flatten)
+      .map(parseOperation)
 
-    for
-      _ <- stream.compile.drain
-      crates <- crateStream.compile.toList.map(_.flatten)
-      crateArray <- IO(crates.toArray)
-      operations <- operationStream.compile.toList.map(_.flatten)
-      _ <- IO(operations.foreach(_.execute(crateArray)))
-      _ <- IO(println(topOfStacks(crateArray)))
-    yield ()
+    for {
+      _ <- stream.runDrain
+      crates <- crateStream.runCollect
+      operations <- operationStream.runCollect
+      crateArray <- ZIO.succeed(crates.toArray)
+      _ <- ZIO.succeed(operations.foreach(_.execute(crateArray)))
+      _ <- printLine(topOfStacks(crateArray))
+    } yield ()

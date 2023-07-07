@@ -6,12 +6,12 @@ import cats.syntax.*
 import scala.annotation.tailrec
 import com.tlmurphy.adventCats.FileReader
 
-object PartOne extends IOApp.Simple:
+object PartTwo extends IOApp.Simple:
 
   case class Operation(amount: Int, from: Int, to: Int):
     def execute(crates: Array[List[String]]): Unit =
       val items = crates(from - 1).take(amount)
-      val newTo = items.reverse ::: crates(to - 1)
+      val newTo = items ::: crates(to - 1)
       crates(from - 1) = crates(from - 1).drop(amount)
       crates(to - 1) = newTo
 
