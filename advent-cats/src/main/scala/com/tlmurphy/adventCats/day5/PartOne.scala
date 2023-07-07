@@ -1,11 +1,12 @@
-package com.tlmurphy.adventZio.day5
+package com.tlmurphy.adventCats.day5
 
-import zio.*
-import zio.Console.*
-import com.tlmurphy.adventZio.FileReader
+import cats.effect.IOApp
+import cats.effect.IO
+import cats.syntax.*
 import scala.annotation.tailrec
+import com.tlmurphy.adventCats.FileReader
 
-object PartOne extends ZIOAppDefault:
+object PartOne extends IOApp.Simple:
 
   case class Operation(amount: Int, from: Int, to: Int):
     def execute(crates: Array[List[String]]): Unit =
@@ -32,28 +33,24 @@ object PartOne extends ZIOAppDefault:
   def topOfStacks(crates: Array[List[String]]): String =
     crates.map(_.head).mkString
 
-  override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
+  override def run: IO[Unit] =
     val stream = FileReader
       .getStream("day5.txt")
       .split(_ == "")
 
     val crateStream = stream
       .take(1)
-      .map(_.map(x => parseCrateInput(x, List.empty)))
-      .map(_.dropRight(1).transpose)
-      .mapChunks(_.flatten)
-      .map(_.flatten.toList)
+      .map(_.map(s => parseCrateInput(s, List.empty)))
+      .map(_.dropRight(1).toList.transpose)
+      .map(_.map(_.flatten))
 
-    val operationStream = stream
-      .drop(1)
-      .mapChunks(_.flatten)
-      .map(parseOperation)
+    val operationStream = stream.drop(1).map(c => c.map(parseOperation).toList)
 
     for {
-      _ <- stream.runDrain
-      crates <- crateStream.runCollect
-      operations <- operationStream.runCollect
-      crateArray <- ZIO.succeed(crates.toArray)
-      _ <- ZIO.succeed(operations.foreach(_.execute(crateArray)))
-      _ <- printLine(topOfStacks(crateArray))
+      _ <- stream.compile.drain
+      crates <- crateStream.compile.toList.map(_.flatten)
+      crateArray <- IO(crates.toArray)
+      operations <- operationStream.compile.toList.map(_.flatten)
+      _ <- IO(operations.foreach(_.execute(crateArray)))
+      _ <- IO(println(topOfStacks(crateArray)))
     } yield ()
