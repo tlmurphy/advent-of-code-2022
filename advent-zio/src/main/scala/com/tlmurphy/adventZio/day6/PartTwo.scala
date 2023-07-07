@@ -1,11 +1,12 @@
-package com.tlmurphy.adventCats.day6
+package com.tlmurphy.adventZio.day6
 
-import cats.effect.{IO, IOApp}
-import com.tlmurphy.adventCats.FileReader
+import zio.*
+import zio.Console.*
+import com.tlmurphy.adventZio.FileReader
 
-object PartOne extends IOApp.Simple:
+object PartTwo extends ZIOAppDefault:
 
-  val window = 4
+  val window = 14
 
   def findMarker(s: Iterator[String], count: Int = window): Int =
     s.nextOption() match
@@ -13,12 +14,10 @@ object PartOne extends IOApp.Simple:
       case Some(value) =>
         if (value.distinct == value) count else findMarker(s, count + 1)
 
-  override def run: IO[Unit] =
+  override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
     FileReader
       .getStream("day6.txt")
-      .takeWhile(_ != "")
       .map(_.sliding(window))
       .map(findMarker(_))
-      .evalMap(x => IO(println(x)))
-      .compile
-      .drain
+      .map(println(_))
+      .runDrain

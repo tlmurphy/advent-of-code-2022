@@ -3,9 +3,9 @@ package com.tlmurphy.adventCats.day6
 import cats.effect.{IO, IOApp}
 import com.tlmurphy.adventCats.FileReader
 
-object PartOne extends IOApp.Simple:
+object PartTwo extends IOApp.Simple:
 
-  val window = 4
+  val window = 14
 
   def findMarker(s: Iterator[String], count: Int = window): Int =
     s.nextOption() match

@@ -6,7 +6,9 @@ import com.tlmurphy.adventZio.FileReader
 
 object PartOne extends ZIOAppDefault:
 
-  def findMarker(s: Iterator[String], count: Int = 4): Int =
+  val window = 4
+
+  def findMarker(s: Iterator[String], count: Int = window): Int =
     s.nextOption() match
       case None => count
       case Some(value) =>
@@ -15,7 +17,7 @@ object PartOne extends ZIOAppDefault:
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
     FileReader
       .getStream("day6.txt")
-      .map(_.sliding(4))
+      .map(_.sliding(window))
       .map(findMarker(_))
       .map(println(_))
       .runDrain
